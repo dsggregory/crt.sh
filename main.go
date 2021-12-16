@@ -136,6 +136,10 @@ func main() {
 
 	var isHexRe = regexp.MustCompile(`^[a-fA-F0-9]+$`)
 
+	if len(flag.Args()) != 1 {
+		flag.Usage()
+		os.Exit(1)
+	}
 	qArg := flag.Args()[0]
 	var rows *sql.Rows
 	switch {

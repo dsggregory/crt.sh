@@ -13,7 +13,7 @@ go run main.go [opts] <query>
 ```
 
 __Example__:
-> go run main.go -t skid 7710480E7DEDF245BAAF15C65E35377455D8ECDB
+> go run main.go -t skid ec73502092a4656a6c9e0740362af4c483b7e4bd
 
 
 ## References

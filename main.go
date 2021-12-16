@@ -84,7 +84,7 @@ SELECT id as ID,
 
 var QuerySha1Fingerprint string = qCertBase + `WHERE digest(certificate, $1) = $2;`
 
-var QuerySKID string = qCertBase + `WHERE x509_subjectKeyIdentifier(certificate, 'hex') = $1;`
+var QuerySKID string = qCertBase + `WHERE x509_subjectKeyIdentifier(certificate) = $1;`
 
 func getRows(rows *sql.Rows) ([]map[string]interface{}, error) {
 	// [issuer_ca_id issuer_name common_name name_value id entry_timestamp not_before not_after serial_number raw]

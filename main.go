@@ -114,10 +114,18 @@ func getRows(rows *sql.Rows) ([]map[string]interface{}, error) {
 	return results, nil
 }
 
+func cleanHex(str string) string {
+	return strings.ReplaceAll(strings.ToLower(str), ":", "")
+}
+
+var isHexRe = regexp.MustCompile(`^(?:[a-fA-F0-9]{2}[:]{0,1})+[a-fA-F0-9]{2}$`)
+
 func main() {
 	var oOutType string
 	var oArgType string
 	flag.Usage = func() {
+		fmt.Fprintf(os.Stderr, "crt.sh version %s, %s\n", Version, Repository)
+		fmt.Fprintf(os.Stderr, "Query https://crt.sh database for a certificate identity.\n")
 		fmt.Fprintf(os.Stderr, "Usage: %s [opts] <query>\n", os.Args[0])
 		flag.PrintDefaults()
 	}
@@ -134,8 +142,6 @@ func main() {
 	}
 	defer db.Close()
 
-	var isHexRe = regexp.MustCompile(`^[a-fA-F0-9]+$`)
-
 	if len(flag.Args()) != 1 {
 		flag.Usage()
 		os.Exit(1)
@@ -147,11 +153,11 @@ func main() {
 		qArg = fmt.Sprintf("%%.%s", qArg)
 		rows, err = db.Query(QueryDomain, qArg, NtDNSName)
 	case oArgType == "skid":
-		rows, err = db.Query(QuerySKID, fmt.Sprintf(`\x%s`, qArg))
+		rows, err = db.Query(QuerySKID, fmt.Sprintf(`\x%s`, cleanHex(qArg)))
 	case oArgType == "fingerprint" || isHexRe.MatchString(qArg) && len(qArg) == 40: // sha1 fingerprint
-		rows, err = db.Query(QuerySha1Fingerprint, "sha1", fmt.Sprintf(`\x%s`, qArg))
+		rows, err = db.Query(QuerySha1Fingerprint, "sha1", fmt.Sprintf(`\x%s`, cleanHex(qArg)))
 	case oArgType == "fingerprint" || isHexRe.MatchString(qArg) && len(qArg) == 64: // sha256 fingerprint
-		rows, err = db.Query(QuerySha1Fingerprint, "sha256", fmt.Sprintf(`\x%s`, qArg))
+		rows, err = db.Query(QuerySha1Fingerprint, "sha256", fmt.Sprintf(`\x%s`, cleanHex(qArg)))
 	default:
 		err = fmt.Errorf("unknown query type for input")
 	}
